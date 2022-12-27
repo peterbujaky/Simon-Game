@@ -5,6 +5,7 @@ const buttons = $(".btn").get();
 let userClickedPattern = new Array();
 let firstKeyPress = true;
 let level = 0;
+let started = false;
 
 /* FUNCTIONS */
 
@@ -50,12 +51,12 @@ function checkAnswer(currentLevel) {
 
 function startOver() {
             gamePattern = [];
-            $('h1').text($('h1').html());
-                level = 0;      
-            $("h1").text(`Level ${level}`);
+            level = 0;      
+            $("h1").text('Level 1');
             setTimeout(() => {
                 nextSequence()
-            }, 1000)
+            }, 1000);
+            started = true;
 }
 
 
@@ -81,7 +82,11 @@ function nextSequence() {
     playSound(randomChosenColor);
     flashEffect(randomChosenColor);
     level++;
-    $("h1").text(`Level ${level}`);
+    if (started) {
+        $("h1").text("Level 1");
+    } else {
+        $("h1").text(`Level ${level}`)
+    }
     userClickedPattern = [];
 }
 
