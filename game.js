@@ -2,7 +2,7 @@ const buttonColors = ["red", "blue", "green", "yellow"];
 let gamePattern = new Array();
 const audio = new Audio();
 const buttons = $(".btn").get();
-const userClickedPattern = new Array();
+let userClickedPattern = new Array();
 let firstKeyPress = true;
 let level = 0;
 
@@ -25,14 +25,11 @@ function flashEffect(color) {
 // CREATING A PRESSED DOWN EFFECT
 
 function animatePress(currentColor) {
-    buttons.forEach(item => {
-        item.addEventListener("click", (e) => {
-            $(e.target).addClass("pressed");
-            setTimeout(() => {
-                $(e.target).removeClass("pressed");
-            }, 100)
-        })
-    })
+
+    $(currentColor).addClass("pressed");
+    setTimeout(() => {
+        $(currentColor).removeClass("pressed");
+    }, 100)
 }
 
 
@@ -40,20 +37,31 @@ function animatePress(currentColor) {
 // CHECK ANSWER FUNCTION 
 
 function checkAnswer(currentLevel) {
-    return gamePattern.every((value, index) => value === userClickedPattern[index]);
+
+    for (let i = 0; i < userClickedPattern.length; i++) {
+        if (userClickedPattern[i] !== gamePattern[i]) {
+            {
+                return false;
+            }
+        }
+    }
+    return true
 }
 
-// NEXT ROUND
-function nextSequence() {
-    let randomNumber = Math.floor(Math.random() * 4);
-    let randomChosenColor = buttonColors[randomNumber];
-    gamePattern.push(randomChosenColor);
-    playSound(randomChosenColor);
-    flashEffect(randomChosenColor);
-    level++;
-    $("h1").text(`Level ${level}`);
-
+function startOver() {
+            gamePattern = [];
+            $('h1').text($('h1').html());
+                level = 0;      
+            $("h1").text(`Level ${level}`);
+            setTimeout(() => {
+                nextSequence()
+            }, 1000)
 }
+
+
+
+
+//&& userClickedPattern.every((value, index) => value !== gamePattern[index]))
 
 $(document).keydown((e) => {
     if (firstKeyPress) {
@@ -65,11 +73,26 @@ $(document).keydown((e) => {
 })
 
 
+// NEXT ROUND
+function nextSequence() {
+    let randomNumber = Math.floor(Math.random() * 4);
+    let randomChosenColor = buttonColors[randomNumber];
+    gamePattern.push(randomChosenColor);
+    playSound(randomChosenColor);
+    flashEffect(randomChosenColor);
+    level++;
+    $("h1").text(`Level ${level}`);
+    userClickedPattern = [];
+}
+
+
+
+
 buttons.forEach(item => {
     item.addEventListener("click", (e) => {
 
         /* PRESS EFFECT */
-        animatePress();
+        animatePress(e.target);
 
         /* RECOGNIZES THE BUTTON'S COLOR AND STORES IT IN A VARIABLE */
         let userChosenColor = $(e.target).attr('id');
@@ -81,10 +104,24 @@ buttons.forEach(item => {
         checkAnswer();
 
         let isMatch = checkAnswer(level);
-        if (isMatch) {
-          setTimeout(() => {
-            nextSequence()
-          }, 1000);
+        if (isMatch && userClickedPattern.length === gamePattern.length) {
+            setTimeout(() => {
+                nextSequence()
+            }, 1000);
+            userClickedPattern = [];
+        } else if (!isMatch) {
+            $("h1").text("Game Over, Press Any Key to Restart");
+            $("body").addClass("game-over");
+            setTimeout(() => {
+                $("body").removeClass("game-over")
+            }, 200)
+            audio.src = "sounds/wrong.mp3";
+            audio.play();
+            $(document).keydown(() => {
+                startOver();
+            })
         }
-      });
+
+
     });
+});
