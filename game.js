@@ -6,6 +6,7 @@ let userClickedPattern = new Array();
 let firstKeyPress = true;
 let level = 0;
 let started = false;
+let nextSequenceInProgress = false;
 
 /* FUNCTIONS */
 
@@ -33,8 +34,6 @@ function animatePress(currentColor) {
     }, 100)
 }
 
-
-
 // CHECK ANSWER FUNCTION 
 
 function checkAnswer(currentLevel) {
@@ -49,20 +48,16 @@ function checkAnswer(currentLevel) {
     return true
 }
 
+// STARTING A NEW GAME
+
 function startOver() {
-            gamePattern = [];
-            level = 0;      
-            $("h1").text('Level 1');
-            setTimeout(() => {
-                nextSequence()
-            }, 1000);
-            started = true;
+    gamePattern = [];
+    $("h1").text('Level 1');
+    setTimeout(() => {
+        nextSequence()
+    }, 1000);
+    started = true;
 }
-
-
-
-
-//&& userClickedPattern.every((value, index) => value !== gamePattern[index]))
 
 $(document).keydown((e) => {
     if (firstKeyPress) {
@@ -76,18 +71,23 @@ $(document).keydown((e) => {
 
 // NEXT ROUND
 function nextSequence() {
+
+    if (nextSequenceInProgress) {
+        return;
+    }
+
+    nextSequenceInProgress = true;
+
     let randomNumber = Math.floor(Math.random() * 4);
     let randomChosenColor = buttonColors[randomNumber];
     gamePattern.push(randomChosenColor);
     playSound(randomChosenColor);
     flashEffect(randomChosenColor);
     level++;
-    if (started) {
-        $("h1").text("Level 1");
-    } else {
-        $("h1").text(`Level ${level}`)
-    }
+    $("h1").text(`Level ${level}`)
     userClickedPattern = [];
+
+    nextSequenceInProgress = false;
 }
 
 
@@ -122,6 +122,7 @@ buttons.forEach(item => {
             }, 200)
             audio.src = "sounds/wrong.mp3";
             audio.play();
+            level = 0;
             $(document).keydown(() => {
                 startOver();
             })
