@@ -8,6 +8,9 @@ let level = 0;
 let started = false;
 let nextSequenceInProgress = false;
 const isMobile = window.matchMedia("(max-width: 767px)").matches;
+let firstRound = true;
+let userHasClicked = false;
+let clickCounter = 0;
 
 /* FUNCTIONS */
 
@@ -44,19 +47,33 @@ function checkAnswer(currentLevel) {
             {
                 return false;
             }
+
         }
+        return true
     }
-    return true
 }
+
+// FIRST ROUND FUNCTION
+
+/* function isFirstRound() {
+    if (firstRound) {
+        return true
+    }
+    else {
+        return false
+    }
+} */
 
 // STARTING A NEW GAME
 
 function startOver() {
     gamePattern = [];
     $("h1").text('Level 1');
-    setTimeout(() => {
-        nextSequence()
-    }, 1000);
+    if (!started) {
+        setTimeout(() => {
+            nextSequence()
+        }, 1000);
+    }
     started = true;
 }
 
@@ -77,8 +94,6 @@ function nextSequence() {
         return;
     }
 
-    nextSequenceInProgress = true;
-
     let randomNumber = Math.floor(Math.random() * 4);
     let randomChosenColor = buttonColors[randomNumber];
     gamePattern.push(randomChosenColor);
@@ -89,6 +104,8 @@ function nextSequence() {
     userClickedPattern = [];
 
     nextSequenceInProgress = false;
+
+    clickCounter = 0;
 }
 
 
@@ -96,9 +113,12 @@ function nextSequence() {
 
 buttons.forEach(item => {
     item.addEventListener("click", (e) => {
+        clickCounter++;
+
 
         /* PRESS EFFECT */
-        animatePress(e.target);
+        animatePress(e.target);      
+  
 
         /* RECOGNIZES THE BUTTON'S COLOR AND STORES IT IN A VARIABLE */
         let userChosenColor = $(e.target).attr('id');
@@ -108,6 +128,7 @@ buttons.forEach(item => {
         playSound(userChosenColor);
 
         checkAnswer();
+
 
         let isMatch = checkAnswer(level);
         if (isMatch && userClickedPattern.length === gamePattern.length) {
@@ -128,10 +149,9 @@ buttons.forEach(item => {
                 startOver();
             })
         }
+})})
 
-
-    });
-});
+/*
 
 if (isMobile) {
 
@@ -176,14 +196,14 @@ if (isMobile) {
     buttons.forEach(item => {
         item.addEventListener("touchstart", (e) => {
 
-            /* PRESS EFFECT */
+            //PRESS EFFECT //
             animatePress(e.target);
 
-            /* RECOGNIZES THE BUTTON'S COLOR AND STORES IT IN A VARIABLE */
+            // RECOGNIZES THE BUTTON'S COLOR AND STORES IT IN A VARIABLE //
             let userChosenColor = $(e.target).attr('id');
             userClickedPattern.push(userChosenColor);
 
-            /* PLAYS AUDIO */
+            // PLAYS AUDIO //
             playSound(userChosenColor);
 
             checkAnswer();
@@ -213,3 +233,5 @@ if (isMobile) {
     });
 
 }
+
+*/
