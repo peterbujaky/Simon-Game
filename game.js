@@ -8,9 +8,8 @@ let level = 0;
 let started = false;
 let nextSequenceInProgress = false;
 const isMobile = window.matchMedia("(max-width: 767px)").matches;
-let firstRound = true;
 let userHasClicked = false;
-let clickCounter = 0;
+let userClick = 0;
 
 /* FUNCTIONS */
 
@@ -32,6 +31,8 @@ function flashEffect(color) {
 
 function animatePress(currentColor) {
 
+    console.log("Animation just got called bro");
+
     $(currentColor).addClass("pressed");
     setTimeout(() => {
         $(currentColor).removeClass("pressed");
@@ -43,49 +44,46 @@ function animatePress(currentColor) {
 function checkAnswer(currentLevel) {
 
     for (let i = 0; i < userClickedPattern.length; i++) {
-        if (userClickedPattern[i] !== gamePattern[i]) {
+        if (userClickedPattern[i] !== gamePattern[i] || (userClick > level)) {
             {
                 return false;
-            }
-
+            }          
         }
-        return true
     }
+
+    return true
+  
 }
 
-// FIRST ROUND FUNCTION
-
-/* function isFirstRound() {
-    if (firstRound) {
-        return true
-    }
-    else {
-        return false
-    }
-} */
-
-// STARTING A NEW GAME
-
 function startOver() {
-    gamePattern = [];
+
+    console.log("startover just got called");
     $("h1").text('Level 1');
-    if (!started) {
+        gamePattern = [];
         setTimeout(() => {
             nextSequence()
         }, 1000);
+        $(document).off("keydown", startOver);
+        userClick = 0;
     }
-    started = true;
-}
 
-$(document).keydown((e) => {
+
+
+function firstRound() {
+
+
     if (firstKeyPress) {
+        console.log("Firstround just got called!");
         nextSequence();
+        $("h1").text(`Level ${level}`)
         firstKeyPress = false;
     }
 
-    $("h1").text(`Level ${level}`);
-})
+    if (!firstKeyPress) {
+        return
+    }
 
+}
 
 // NEXT ROUND
 function nextSequence() {
@@ -93,6 +91,10 @@ function nextSequence() {
     if (nextSequenceInProgress) {
         return;
     }
+
+    console.log("Next Sequence got called");
+
+    nextSequenceInProgress = true;
 
     let randomNumber = Math.floor(Math.random() * 4);
     let randomChosenColor = buttonColors[randomNumber];
@@ -102,19 +104,28 @@ function nextSequence() {
     level++;
     $("h1").text(`Level ${level}`)
     userClickedPattern = [];
+    userClick = 0;
 
     nextSequenceInProgress = false;
 
-    clickCounter = 0;
 }
 
 
+// EVENT HANDLERS
+
+
+// STARTING THE FIRST ROUND ON KEYDOWN
+$(document).keydown((e) => {
+    firstRound();
+})
 
 
 buttons.forEach(item => {
     item.addEventListener("click", (e) => {
-        clickCounter++;
 
+        userClick++;
+      
+        console.log("Game round just got called");
 
         /* PRESS EFFECT */
         animatePress(e.target);      
@@ -145,39 +156,28 @@ buttons.forEach(item => {
             audio.src = "sounds/wrong.mp3";
             audio.play();
             level = 0;
-            $(document).keydown(() => {
-                startOver();
-            })
+            $(document).keydown(startOver);
         }
 })})
 
+
 /*
-
 if (isMobile) {
-
     $("h1").text("Touch The Scren To Start");
-
     // CHECK ANSWER FUNCTION 
-
     $(document).on("touchstart", ((e) => {
         if (firstKeyPress) {
             nextSequence();
             firstKeyPress = false;
         }
-
         $("h1").text(`Level ${level}`);
     }))
-
-
     // NEXT ROUND
     function nextSequence() {
-
         if (nextSequenceInProgress) {
             return;
         }
-
         nextSequenceInProgress = true;
-
         let randomNumber = Math.floor(Math.random() * 4);
         let randomChosenColor = buttonColors[randomNumber];
         gamePattern.push(randomChosenColor);
@@ -186,28 +186,18 @@ if (isMobile) {
         level++;
         $("h1").text(`Level ${level}`)
         userClickedPattern = [];
-
         nextSequenceInProgress = false;
     }
-
-
-
-
     buttons.forEach(item => {
         item.addEventListener("touchstart", (e) => {
-
             //PRESS EFFECT //
             animatePress(e.target);
-
             // RECOGNIZES THE BUTTON'S COLOR AND STORES IT IN A VARIABLE //
             let userChosenColor = $(e.target).attr('id');
             userClickedPattern.push(userChosenColor);
-
             // PLAYS AUDIO //
             playSound(userChosenColor);
-
             checkAnswer();
-
             let isMatch = checkAnswer(level);
             if (isMatch && userClickedPattern.length === gamePattern.length) {
                 setTimeout(() => {
@@ -227,11 +217,8 @@ if (isMobile) {
                     startOver();
                 }))
             }
-
-
         });
     });
-
 }
 
 */
